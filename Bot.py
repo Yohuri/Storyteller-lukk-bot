@@ -12,12 +12,12 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     print(f'Bot conectado como {bot.user.name}')
 
-@bot.command(name='r')
+@bot.command(name='s')
 async def roll(ctx, *, arg):
     try:
         match = re.search(r'(\d+)d10\s+(?:dif|diff|d)\s+(\d+)', arg.lower())
         if not match:
-            await ctx.send("Formato inválido! Use: `!r Xd10 dif Y` (ex: `!r 4d10 dif 6`)")
+            await ctx.send("Formato inválido! Use: `!s Xd10 dif Y` (ex: `!s 4d10 dif 6`)")
             return
         num_dice = int(match.group(1))
         difficulty = int(match.group(2))
