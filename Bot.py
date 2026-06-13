@@ -24,6 +24,9 @@ async def roll(ctx, *, arg):
         if num_dice <= 0 or num_dice > 100:
             await ctx.send("Número de dados deve estar entre 1 e 100.")
             return
+        if difficulty < 1 or difficulty > 10:
+            await ctx.send("Dificuldade deve estar entre 1 e 10.")
+            return
         rolls = [random.randint(1, 10) for _ in range(num_dice)]
         total_successes = 0
         for die in rolls:
