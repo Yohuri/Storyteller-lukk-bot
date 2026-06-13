@@ -31,7 +31,7 @@ async def roll(ctx, *, arg):
             elif die >= difficulty: total_successes += 1
             elif die == 1: total_successes -= 1
         rolls_str = ", ".join(map(str, rolls))
-        await ctx.send(f"Roll: ({rolls_str})\n\n**{total_successes} Sucessos!**")
+        await ctx.send(f"{ctx.author.mention} - Roll: ({rolls_str})\n\n**{total_successes} Sucessos!**")
     except Exception as e:
         await ctx.send(f"Erro: {str(e)}")
 
