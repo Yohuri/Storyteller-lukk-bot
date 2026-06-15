@@ -38,6 +38,9 @@ def parse_combined_roll(roll_str, user_rolls):
     if not parts:
         return None, "Formato inválido para rolagem combinada. Use: `-name1-+-name2-`"
     
+    if len(parts) > 5:
+        return None, "Máximo de 5 rolagens combinadas permitidas."
+    
     total_dice = 0
     for part in parts:
         if part in user_rolls:
