@@ -31,9 +31,12 @@ def parse_combined_roll(roll_str, user_rolls):
     # Remove espaços
     roll_str = roll_str.replace(' ', '')
     
-    # Encontra padrão -name- com + entre eles
-    parts = re.split(r'\+-?\+', roll_str)
-    parts = [p.strip('-') for p in parts if p.strip('-')]
+    # Extrai nomes entre hífens, separados por +
+    # Padrão: -name1- ou -name1-+-name2- ou -name1-+-name2-+-name3- etc
+    parts = re.findall(r'-([a-zA-Z0-9_]+)-', roll_str)
+    
+    if not parts:
+        return None, "Formato inválido para rolagem combinada. Use: `-name1-+-name2-`"
     
     total_dice = 0
     for part in parts:
@@ -91,7 +94,7 @@ async def roll(ctx, *, arg):
         
         match = re.search(r'(.*?)\s+(?:dif|diff|d)\s+(\d+)$', arg.lower())
         if not match:
-            await ctx.send("Formato inválido! Use: `!s [Xd10|name|name1-+-name2-] dif Y` (ex: `!s 4d10 dif 6`)")
+            await ctx.send("Formato inválido! Use: `!s [Xd10|name|-name1-+-name2-] dif Y` (ex: `!s 4d10 dif 6` ou `!s -attack-+-skill1- dif 7`)")
             return
         
         roll_input = match.group(1).strip()
@@ -108,16 +111,17 @@ async def roll(ctx, *, arg):
         if re.match(r'^\d+d10$', roll_input):
             num_dice = parse_dice(roll_input)
         
-        # Tenta parse como rolagem salva simples
-        elif roll_input in user_rolls:
-            num_dice = parse_dice(user_rolls[roll_input])
-        
         # Tenta parse como rolagem combinada (-name1-+-name2-)
         elif '-' in roll_input and '+' in roll_input:
             num_dice, error = parse_combined_roll(roll_input, user_rolls)
             if error:
                 await ctx.send(f"❌ Erro: {error}")
                 return
+        
+        # Tenta parse como rolagem salva simples
+        elif roll_input in user_rolls:
+            num_dice = parse_dice(user_rolls[roll_input])
+        
         else:
             await ctx.send(f"❌ Rolagem '{roll_input}' não encontrada. Use `!s list` para ver suas rolagens salvas.")
             return
