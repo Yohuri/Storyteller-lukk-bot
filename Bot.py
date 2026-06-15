@@ -65,27 +65,27 @@ async def roll(ctx, *, arg):
         if arg.lower().startswith('save '):
             parts = arg.split(' ', 2)
             if len(parts) < 3:
-                await ctx.send("Formato inválido! Use: `!s save name Xd10` (ex: `!s save attack 5d10`)")
+                await ctx.send(f"{ctx.author.mention} - Formato inválido! Use: `!s save name Xd10` (ex: `!s save attack 5d10`)")
                 return
             
             roll_name = parts[1].lower()
             dice_str = parts[2]
             
             if not re.match(r'^\d+d10$', dice_str.lower()):
-                await ctx.send("Formato inválido! Use apenas `Xd10` (ex: `5d10`)")
+                await ctx.send(f"{ctx.author.mention} - Formato inválido! Use apenas `Xd10` (ex: `5d10`)")
                 return
             
             user_rolls[roll_name] = dice_str
-            await ctx.send(f"✅ Rolagem `{roll_name}` salva como `{dice_str}`")
+            await ctx.send(f"{ctx.author.mention} - ✅ Rolagem `{roll_name}` salva como `{dice_str}`")
             return
         
         # Comando: !s list
         if arg.lower() == 'list':
             if not user_rolls:
-                await ctx.send("Você não tem nenhuma rolagem salva.")
+                await ctx.send(f"{ctx.author.mention} - Você não tem nenhuma rolagem salva.")
                 return
             
-            list_str = "📋 **Suas Rolagens Salvas:**\n"
+            list_str = f"{ctx.author.mention} - 📋 **Suas Rolagens Salvas:**\n"
             for name, dice in user_rolls.items():
                 list_str += f"  • `{name}`: {dice}\n"
             await ctx.send(list_str)
@@ -97,14 +97,14 @@ async def roll(ctx, *, arg):
         
         match = re.search(r'(.*?)\s+(?:dif|diff|d)\s+(\d+)$', arg.lower())
         if not match:
-            await ctx.send("Formato inválido! Use: `!s [Xd10|name|-name1-+-name2-] dif Y` (ex: `!s 4d10 dif 6` ou `!s -attack-+-skill1- dif 7`)")
+            await ctx.send(f"{ctx.author.mention} - Formato inválido! Use: `!s [Xd10|name|-name1-+-name2-] dif Y` (ex: `!s 4d10 dif 6` ou `!s -attack-+-skill1- dif 7`)")
             return
         
         roll_input = match.group(1).strip()
         difficulty = int(match.group(2))
         
         if difficulty < 1 or difficulty > 10:
-            await ctx.send("Dificuldade deve estar entre 1 e 10.")
+            await ctx.send(f"{ctx.author.mention} - Dificuldade deve estar entre 1 e 10.")
             return
         
         # Determinar número de dados
@@ -118,7 +118,7 @@ async def roll(ctx, *, arg):
         elif '-' in roll_input and '+' in roll_input:
             num_dice, error = parse_combined_roll(roll_input, user_rolls)
             if error:
-                await ctx.send(f"❌ Erro: {error}")
+                await ctx.send(f"{ctx.author.mention} - ❌ Erro: {error}")
                 return
         
         # Tenta parse como rolagem salva simples
@@ -126,15 +126,15 @@ async def roll(ctx, *, arg):
             num_dice = parse_dice(user_rolls[roll_input])
         
         else:
-            await ctx.send(f"❌ Rolagem '{roll_input}' não encontrada. Use `!s list` para ver suas rolagens salvas.")
+            await ctx.send(f"{ctx.author.mention} - ❌ Rolagem '{roll_input}' não encontrada. Use `!s list` para ver suas rolagens salvas.")
             return
         
         if num_dice is None or num_dice <= 0:
-            await ctx.send("Formato inválido de dados!")
+            await ctx.send(f"{ctx.author.mention} - Formato inválido de dados!")
             return
         
         if num_dice > 100:
-            await ctx.send("Número de dados não pode exceder 100.")
+            await ctx.send(f"{ctx.author.mention} - Número de dados não pode exceder 100.")
             return
         
         # Executar rolagem
@@ -149,7 +149,7 @@ async def roll(ctx, *, arg):
         await ctx.send(f"{ctx.author.mention} - Roll: ({rolls_str})\n\n**{total_successes} Sucessos!**")
     
     except Exception as e:
-        await ctx.send(f"Erro: {str(e)}")
+        await ctx.send(f"{ctx.author.mention} - Erro: {str(e)}")
 
 token = os.getenv('DISCORD_TOKEN')
 if __name__ == "__main__":
