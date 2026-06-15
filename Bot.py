@@ -11,6 +11,8 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Armazenar rolagens salvas por servidor e usuário
 saved_rolls = {}
+# Armazenar pedidos de limpeza aguardando confirmação
+clear_pending = {}
 
 def get_user_rolls(guild_id, user_id):
     """Retorna as rolagens salvas do usuário"""
@@ -60,6 +62,42 @@ async def on_ready():
 async def roll(ctx, *, arg):
     try:
         user_rolls = get_user_rolls(ctx.guild.id, ctx.author.id)
+        user_key = f"{ctx.guild.id}_{ctx.author.id}"
+        
+        # Comando: !s clear
+        if arg.lower() == 'clear':
+            if user_key in clear_pending and clear_pending[user_key]:
+                await ctx.send(f"{ctx.author.mention} - ⚠️ Você já solicitou limpeza. Use `!s clear confirm` para confirmar ou `!s clear cancel` para cancelar.")
+                return
+            
+            if not user_rolls:
+                await ctx.send(f"{ctx.author.mention} - ❌ Você não tem nenhuma rolagem salva para limpar.")
+                return
+            
+            clear_pending[user_key] = True
+            await ctx.send(f"{ctx.author.mention} - ⚠️ **ATENÇÃO!** Isso vai deletar TODAS as suas rolagens salvas!\nUse `!s clear confirm` para confirmar ou `!s clear cancel` para cancelar.")
+            return
+        
+        # Comando: !s clear confirm
+        if arg.lower() == 'clear confirm':
+            if user_key not in clear_pending or not clear_pending[user_key]:
+                await ctx.send(f"{ctx.author.mention} - ❌ Nenhuma limpeza pendente. Use `!s clear` primeiro.")
+                return
+            
+            saved_rolls[user_key] = {}
+            clear_pending[user_key] = False
+            await ctx.send(f"{ctx.author.mention} - ✅ Todas as suas rolagens foram deletadas!")
+            return
+        
+        # Comando: !s clear cancel
+        if arg.lower() == 'clear cancel':
+            if user_key not in clear_pending or not clear_pending[user_key]:
+                await ctx.send(f"{ctx.author.mention} - ❌ Nenhuma limpeza pendente.")
+                return
+            
+            clear_pending[user_key] = False
+            await ctx.send(f"{ctx.author.mention} - ✅ Limpeza cancelada!")
+            return
         
         # Comando: !s save name Xd10
         if arg.lower().startswith('save '):
